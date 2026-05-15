@@ -1,0 +1,44 @@
+# ============================================================
+# Kritische Gradle-Dateien mit Zugangsdaten / API-URLs
+# ============================================================
+
+# Enthält: Nexus-Username/-Password, Keystore-Passwörter, TSA-URL
+gradle.properties
+
+# Lokale Gradle-User-Properties (globale Credentials, z.B. ~/.gradle/gradle.properties)
+local.properties
+
+# Gradle Secrets / Credential-Overrides
+gradle-local.properties
+secrets.properties
+
+# ============================================================
+# Keystore / Signatur-Dateien
+# ============================================================
+*.jks
+*.keystore
+*.p12
+*.pfx
+
+# ============================================================
+# Build-Output
+# ============================================================
+build/
+.gradle/
+out/
+
+# ============================================================
+# IDE-Dateien
+# ============================================================
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# ============================================================
+# Betriebssystem
+# ============================================================
+.DS_Store
+Thumbs.db
+

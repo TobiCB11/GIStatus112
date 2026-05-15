@@ -1,0 +1,191 @@
+def versionFile = file('version.txt')
+
+
+// Lese die Version aus der Datei
+def readVersion = {
+    if (!versionFile.exists()) {
+        versionFile.text = '0.0.1'
+    }
+    return versionFile.text.trim()
+}
+
+// Inkrementiere die Versionsnummer
+def incrementVersion = { currentVersion ->
+    def (major, minor, patch) = currentVersion.tokenize('.').collect { it as int }
+    patch++
+    return "${major}.${minor}.${patch}"
+}
+
+
+
+// Task zum Inkrementieren der Version und Speichern in der Datei
+task incrementVersionTask {
+    doLast {
+        def newVersion = incrementVersion(version)
+        versionFile.text = newVersion
+        project.version = newVersion
+        println "Version incremented to: ${newVersion}"
+    }
+}
+
+// Rufe die Inkrementierungslogik am Ende jedes Builds auf
+gradle.buildFinished {
+    def newVersion = incrementVersion(version)
+    versionFile.text = newVersion
+    project.version = newVersion
+    println "Version incremented to: ${newVersion}"
+}
+
+
+
+buildscript {
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+        // mavenCentral()
+        //  jcenter()
+        //   maven { url = "https://jitpack.io/" }
+        maven { url = "https://maven.minecraftforge.net/" }
+        if (project.hasProperty('exfyApiUrl')) {
+            maven { url = uri(project.property('exfyApiUrl')) }
+        }
+        if (project.hasProperty('exfynexusUrl')) {
+            maven {
+                name = "exfynexus"
+                url = uri(project.property('exfynexusUrl'))
+                credentials(PasswordCredentials)
+                authentication {
+                    basic(BasicAuthentication)
+                }
+            }
+        }
+
+        //  maven { url = "https://repo.spongepowered.org/repository/maven-public/"}
+        // gradlePluginPortal()
+        /*  maven {
+              name = 'm2-dv8tion'
+              url = 'https://m2.dv8tion.net/releases'
+          }*/
+    }
+    dependencies {
+        //  classpath 'libs/ForgeGradle-FG_2.jar:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:4.+' // Makes ForgeGradle work with Gradle 6
+        classpath("com.github.jengelman.gradle.plugins:shadow:6.1.0")
+    }
+}
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: "com.github.johnrengelman.shadow"
+
+version = readVersion()
+group= "de.tobicb11.gistatus.Main"
+archivesBaseName = "GIStatus112"
+
+minecraft {
+    mappings channel: 'snapshot', version: '20171003-1.12'
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+// Kopiere version.txt in die Build-Ressourcen
+processResources {
+    from(versionFile) {
+        into '.'
+    }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
+
+    compileOnly (files('libs/lm_api_mc1.12.2.jar'))
+    implementation 'com.zaxxer:HikariCP:4.0.3'
+    implementation 'mysql:mysql-connector-java:8.0.28'
+    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.13'
+
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    implementation group: 'uk.com.robust-it', name: 'cloning', version: '1.9.12'
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
+    implementation 'org.java-websocket:Java-WebSocket:1.5.3'
+
+
+
+
+}
+shadowJar {
+    // Kopiere version.txt in das JAR @Todo Prüfen ob das benötigt wird!
+    from(versionFile) {
+        into '.'
+    }
+
+    exclude 'de/exfy/dcv3/**'
+
+    relocate 'com.google.gson', 'shadow.gson'
+    relocate 'org.apache.commons', 'shadow.commons'
+    // relocate 'org.slf4j.LoggerFactory', 'shadow.loggerfacorty  '
+    relocate 'org.slf4j', 'shadow.loggerfacorty2'
+    exclude 'net/labymod/**'
+    exclude 'net/jpountz/**'
+    exclude 'apidocs/**'
+    exclude 'assets/minecraft/labymod/**'
+    exclude 'mcmod.info'
+    exclude 'default'
+    exclude 'dummyThing'
+    exclude 'META-INF/LICENSE.txt'
+    exclude 'META-INF/NOTICE.txt'
+    exclude 'META-INF/DEPENDENCIES'
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/NOTICE'
+    exclude 'BytecodeMethods.class'
+    exclude 'proguard/**'
+    exclude 'mozilla/public-suffix-list.txt'
+    exclude 'META-INF/maven/**'
+    exclude 'META-INF/fml_cache_annotation.json'
+    exclude 'META-INF/fml_cache_class_versions.json'
+    exclude 'META-INF/versions/9/module-info.class'
+    exclude 'META-INF/versions/11/module-info.class'
+    exclude 'module-info.class'
+    // Sicherheitsrelevante Dateien ausschließen
+    exclude('LICENSE_MinecraftAuth')
+    exclude '**/*.jks'
+    exclude '**/*.keystore'
+    exclude '**/cert.jks'
+    exclude '**/keystore*.jks'
+    exclude '**/*.so'
+    exclude '**/oskeychain.so'
+    exclude '**/*.dll'
+    exclude '**/*.dylib'
+    exclude '**/certificates/**'
+    exclude '**/keys/**'
+}
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+reobf {
+    shadowJar {}
+}
+
+
+
+repositories {
+    mavenCentral()
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+

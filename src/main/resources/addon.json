@@ -1,0 +1,10 @@
+{
+  "uuid": "%uuid%",
+  "name": "GrieferInfo Status Updater (1.12.2)",
+  "mainClass": "de.tobicb11.gistatus.Main",
+  "description": "Updatet den Online Status deines Bots auf der Website von griefer.info",
+  "version": 1.0,
+  "author": "gamemix2010",
+  "category": 2,
+  "icon": ""
+}
