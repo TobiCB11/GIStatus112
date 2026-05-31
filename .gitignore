@@ -12,6 +12,8 @@ local.properties
 gradle-local.properties
 secrets.properties
 
+*.gitignore
+
 # ============================================================
 # Keystore / Signatur-Dateien
 # ============================================================
