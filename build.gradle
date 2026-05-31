@@ -109,15 +109,11 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
 
     compileOnly (files('libs/lm_api_mc1.12.2.jar'))
-    implementation 'com.zaxxer:HikariCP:4.0.3'
-    implementation 'mysql:mysql-connector-java:8.0.28'
-    implementation group: 'net.dv8tion', name: 'JDA', version: '5.0.0-beta.13'
 
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.26'
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
     implementation group: 'uk.com.robust-it', name: 'cloning', version: '1.9.12'
     implementation group: 'com.google.code.gson', name: 'gson', version: '2.10.1'
-    implementation 'org.java-websocket:Java-WebSocket:1.5.3'
 
 
 
